@@ -6,7 +6,7 @@ interface Announcement {
   date?: string; // ISO date, optional
 }
 
-let announcements: Announcement[] = [
+const announcements: Announcement[] = [
   { message: "📢 Livraison gratuite ce week-end !" },
 ];
 

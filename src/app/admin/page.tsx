@@ -2,23 +2,35 @@
 
 import { useEffect, useState } from 'react';
 
+type Announcement = {
+  message: string;
+  date?: string;
+};
+
 export default function AdminPage() {
   const [message, setMessage] = useState('');
   const [date, setDate] = useState('');
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   const fetchAnnouncements = async () => {
-    const res = await fetch('/api/announcement');
-    const data = await res.json();
-    setAnnouncements(data.announcements);
+    try {
+      const res = await fetch('/api/announcement');
+      const data = await res.json();
+      setAnnouncements(data.announcements || []);
+    } catch (err) {
+      console.error('Erreur lors du chargement des annonces', err);
+    }
   };
 
   const submitAnnouncement = async () => {
+    if (!message.trim()) return;
+
     await fetch('/api/announcement', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, date }),
     });
+
     setMessage('');
     setDate('');
     fetchAnnouncements();
@@ -30,6 +42,7 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ index }),
     });
+
     fetchAnnouncements();
   };
 
@@ -43,44 +56,48 @@ export default function AdminPage() {
 
       <div className="flex flex-col gap-2 mb-6">
         <input
-          className="p-2 border border-gray-300 rounded"
           type="text"
-          placeholder="Nouvelle annonce"
+          className="p-2 border border-gray-300 rounded"
+          placeholder="📢 Tapez votre annonce (avec emoji)"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
         <input
-          className="p-2 border border-gray-300 rounded"
           type="datetime-local"
+          className="p-2 border border-gray-300 rounded"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded w-fit"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-fit"
           onClick={submitAnnouncement}
         >
           Publier
         </button>
       </div>
 
-      <h2 className="font-semibold mb-2">📋 Annonces :</h2>
+      <h2 className="font-semibold mb-2">📋 Annonces programmées :</h2>
       <ul className="space-y-2">
+        {announcements.length === 0 && (
+          <li className="text-gray-500 text-sm">Aucune annonce pour le moment.</li>
+        )}
         {announcements.map((a, i) => (
           <li
             key={i}
-            className="flex justify-between items-start bg-gray-100 p-2 rounded"
+            className="flex justify-between items-start bg-gray-100 p-3 rounded"
           >
-            <div>
+            <div className="text-sm">
               <p>{a.message}</p>
               {a.date && (
-                <p className="text-xs text-gray-500">
-                  📅 Active à partir de : {new Date(a.date).toLocaleString()}
+                <p className="text-xs text-gray-500 mt-1">
+                  📅 Active à partir de :{' '}
+                  {new Date(a.date).toLocaleString('fr-FR')}
                 </p>
               )}
             </div>
             <button
-              className="text-red-500 text-sm"
               onClick={() => deleteAnnouncement(i)}
+              className="text-red-500 text-sm ml-4"
             >
               Supprimer
             </button>
