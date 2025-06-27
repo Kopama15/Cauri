@@ -24,12 +24,10 @@ export const Navbar = () => {
     if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const { latitude, longitude } = pos.coords;
-
         const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
         );
         const data = await res.json();
-
         const code = data?.address?.country_code?.toUpperCase();
         if (code) {
           const name = new Intl.DisplayNames(['fr'], { type: 'region' }).of(code);
@@ -46,12 +44,10 @@ export const Navbar = () => {
         const res = await fetch('/api/announcement');
         const data = await res.json();
         const now = new Date();
-
         const active = (data.announcements as Announcement[]).filter((a) => {
           if (!a.date) return true;
           return new Date(a.date) <= now;
         });
-
         const messages = active.map((a) => a.message);
         setAnnouncement(messages);
       } catch (err) {
@@ -139,9 +135,7 @@ export const Navbar = () => {
         <div className="bg-[#232f3e] overflow-hidden whitespace-nowrap text-white text-sm">
           <div className="animate-marquee flex gap-12 px-4 py-2">
             {announcement.map((msg, i) => (
-              <span key={i} className="inline-block">
-                {msg}
-              </span>
+              <span key={i} className="inline-block">{msg}</span>
             ))}
           </div>
         </div>
