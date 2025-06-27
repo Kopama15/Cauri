@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react';
 import { FaSearch, FaShoppingCart, FaGlobe } from 'react-icons/fa';
 import { IoMdArrowDropdown } from 'react-icons/io';
 
+interface Announcement {
+  message: string;
+  date?: string;
+}
+
 export const Navbar = () => {
   const user = {
     name: 'adefolahan',
@@ -34,18 +39,20 @@ export const Navbar = () => {
     }
   }, []);
 
-  // Fetch admin announcements and filter by date
+  // Fetch admin announcements
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
         const res = await fetch('/api/announcement');
         const data = await res.json();
         const now = new Date();
-        const active = data.announcements?.filter((a: any) => {
+
+        const active = (data.announcements as Announcement[]).filter((a) => {
           if (!a.date) return true;
           return new Date(a.date) <= now;
         });
-        const messages = active.map((a: any) => a.message);
+
+        const messages = active.map((a) => a.message);
         setAnnouncement(messages);
       } catch (err) {
         console.error('Failed to fetch announcement:', err);
@@ -128,10 +135,10 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {announcement && announcement.length > 0 && (
+      {announcement.length > 0 && (
         <div className="bg-[#232f3e] overflow-hidden whitespace-nowrap text-white text-sm">
           <div className="animate-marquee flex gap-12 px-4 py-2">
-            {announcement.map((msg: string, i: number) => (
+            {announcement.map((msg, i) => (
               <span key={i} className="inline-block">
                 {msg}
               </span>
